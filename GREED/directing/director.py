@@ -1,3 +1,11 @@
+import random
+from shared.color import Color
+from shared.point import Point
+from shared.velocity import Velocity
+from casting.rock import Rock
+from casting.gem import Gem
+
+
 class Director:
     """A person who directs the game. 
     
@@ -47,20 +55,73 @@ class Director:
         Args:
             cast (Cast): The cast of actors.
         """
-        banner = cast.get_first_actor("banners")
-        robot = cast.get_first_actor("robots")
-        artifacts = cast.get_actors("artifacts")
+        score = cast.get_first_actor("score")
+        player= cast.get_first_actor("player")
+        rocks = cast.get_actors("rocks")
+        gems= cast.get_actors("gems")
 
-        banner.set_text("")
+        
         max_x = self._video_service.get_width()
         max_y = self._video_service.get_height()
-        robot.move_next(max_x, max_y)
+        player.move_next(max_x, max_y)
         
-        for artifact in artifacts:
-            if robot.get_position().equals(artifact.get_position()):
-                message = artifact.get_message()
-                banner.set_text(message)    
+        for gem in gems:
+            if player.get_position().equals(gems.get_position()):
+                player.score_gem()
+                score.set_text("score: "+ str(player.get_score()))
+                cast.remove_actor("gems",gem)
+            gem.move_next(max_x, max_y)
+
+        for rock in rocks:
+            if player.get_position().equals(rock.get_position()):
+                player.score_rock()
+                score.set_text("score: "+str(player.get_score()))
+                cast.remove_actor("rocks",rock)
+            rock.move_next(max_x,max_y)
+
+        if len(gems)== 0:
+            score.set_text("score: "+ str(player.get_score()))
+    
+    def create_rocks(self,cast):
+        x=random.randint(1, 60 - 1)
+        y=random.randint(1, 40 -1 )
+        positionn= Point(x,y)
+        position= position.scale(15)
+        speed = Velocity(0,1)
+
+        r= random.randint(100,255)
+        g=random.randint(100,255)
+        b=random.randint(100,255)
+        color= Color(r,g,b)
+
+        rock=Rock()
+        rock.set_text("O")
+        rock.set_font_size(15)
+        rock.set_color(color)
+        rock.set_position(position)
+        rock.set_velocity(speed)
+        cast.add_actor("rocks",rock)
+    def create_gems(self, cast):
+        x = random.randint(1, 60 - 1)
+        y = random.randint(1, 40 - 1)
+        position = Point(x, y)
+        position = position.scale(15)
+        speed = Velocity(0, 1)
+
+        r = random.randint(100, 255)
+        g = random.randint(100, 255)
+        b = random.randint(100, 255)
+        color = Color(r, g, b)
         
+        gem = Gem()
+        gem.set_text("*")
+        gem.set_font_size(15)
+        gem.set_color(color)
+        gem.set_position(position)
+        gem.set_velocity(speed)
+        cast.add_actor("gems", gem)
+
+
     def _do_outputs(self, cast):
         """Draws the actors on the screen.
         
