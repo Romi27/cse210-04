@@ -1,21 +1,18 @@
 import os
 import random
 
+from game.casting.actor import Actor
+from game.casting.artifact import Artifact
+from game.casting.cast import Cast
 
+from game.directing.director import Director
 
-from casting.actor import Actor
+from game.services.keyboard_service import KeyboardService
+from game.services.video_service import VideoService
 
-from casting.cast import Cast
+from game.shared.color import Color
+from game.shared.point import Point
 
-from directing.director import Director
-from casting.rock import Rock
-from services.keyboard_service import KeyboardService
-from services.video_service import VideoService
-from casting.gem import Gem
-from casting.player import Player
-from shared.color import Color
-from shared.point import Point
-from shared.velocity import Velocity
 
 FRAME_RATE = 12
 MAX_X = 900
@@ -24,81 +21,64 @@ CELL_SIZE = 15
 FONT_SIZE = 15
 COLS = 60
 ROWS = 40
-CAPTION = "Greed"
+CAPTION = "Robot Finds Kitten"
+DATA_PATH = os.path.dirname(os.path.abspath(__file__)) + "/data/messages.txt"
 WHITE = Color(255, 255, 255)
-START_ROCKS = 20
-START_GEMS = 20
+DEFAULT_ARTIFACTS = 40
 
 
 def main():
-
+    
     # create the cast
     cast = Cast()
-
-    # create the score
-    score = Actor()
-    score.set_text("Score: 0")
-    score.set_font_size(FONT_SIZE)
-    score.set_color(WHITE)
-    score.set_position(Point(CELL_SIZE, 0))
-    score.set_velocity(Velocity(0, 0))
-    cast.add_actor("score", score)
-
-    # create the player
+    
+    # create the banner
+    banner = Actor()
+    banner.set_text("")
+    banner.set_font_size(FONT_SIZE)
+    banner.set_color(WHITE)
+    banner.set_position(Point(CELL_SIZE, 0))
+    cast.add_actor("banners", banner)
+    
+    # create the robot
     x = int(MAX_X / 2)
-    y = MAX_Y - 25
-    position = Point(x, y)
-    speed = Velocity(0, 0)
+    position = Point(x, 0)
 
-    player = Player()
-    player.set_text("#")
-    player.set_font_size(FONT_SIZE)
-    player.set_color(WHITE)
-    player.set_position(position)
-    player.set_velocity(speed)
-    cast.add_actor("player", player)
+    robot = Actor()
+    robot.set_text("#")
+    robot.set_font_size(FONT_SIZE)
+    robot.set_color(WHITE)
+    robot.set_position(position)
+    cast.add_actor("robots", robot)
+    
+    # create the artifacts
+    with open(DATA_PATH) as file:
+        data = file.read()
+        messages = data.splitlines()
 
-    for n in range(START_ROCKS):
+    for n in range(DEFAULT_ARTIFACTS):
+        text = "*"
+        message = messages[n]
+
         x = random.randint(1, COLS - 1)
         y = random.randint(1, ROWS - 1)
         position = Point(x, y)
         position = position.scale(CELL_SIZE)
-        speed = Velocity(0, 1)
 
-        r = random.randint(100, 255)
-        g = random.randint(100, 255)
-        b = random.randint(100, 255)
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
         color = Color(r, g, b)
-
-        rock = Rock()
-        rock.set_text("O")
-        rock.set_font_size(FONT_SIZE)
-        rock.set_color(color)
-        rock.set_position(position)
-        rock.set_velocity(speed)
-        cast.add_actor("rocks", rock)
-
-
-    for n in range(START_GEMS):
-        x = random.randint(1, COLS - 1)
-        y = random.randint(1, ROWS - 1)
-        position = Point(x, y)
-        position = position.scale(CELL_SIZE)
-        speed = Velocity(0, 1)
-
-        r = random.randint(100, 255)
-        g = random.randint(100, 255)
-        b = random.randint(100, 255)
-        color = Color(r, g, b)
-
-        gem = Gem()
-        gem.set_text("*")
-        gem.set_font_size(FONT_SIZE)
-        gem.set_color(color)
-        gem.set_position(position)
-        gem.set_velocity(speed)
-        cast.add_actor("gems", gem)
-
+        
+        artifact = Artifact()
+        artifact.set_text(text)
+        artifact.set_font_size(FONT_SIZE)
+        artifact.set_color(color)
+        artifact.set_position(position)
+        artifact.set_message(message)
+        cast.add_actor("artifacts", artifact)
+    
+    # start the game
     keyboard_service = KeyboardService(CELL_SIZE)
     video_service = VideoService(CAPTION, MAX_X, MAX_Y, CELL_SIZE, FRAME_RATE)
     director = Director(keyboard_service, video_service)
