@@ -6,7 +6,7 @@ class VideoService:
     on the screen. 
     """
 
-    def __init__(self, caption, width, height, cell_size, frame_rate, debug = False):
+    def __init__(self, caption, width, height, cell_size, frame_rate, debug=False):
         """Constructs a new VideoService using the specified debug mode.
         
         Args:
@@ -31,33 +31,31 @@ class VideoService:
         pyray.clear_background(pyray.BLACK)
         if self._debug == True:
             self._draw_grid()
-    
+
     def draw_actor(self, actor):
         """Draws the given actor's text on the screen.
-
         Args:
             actor (Actor): The actor to draw.
-        """ 
+        """
         point = actor.get_point()
         x = actor.get_position().get_x()
         y = actor.get_position().get_y()
         font_size = actor.get_font_size()
         color = actor.get_color().to_tuple()
         pyray.draw_text(point, x, y, font_size, color)
-        
+
     def draw_actors(self, actors):
         """Draws the text for the given list of actors on the screen.
-
         Args:
             actors (list): A list of actors to draw.
-        """ 
+        """
         for actor in actors:
             self.draw_actor(actor)
-    
+
     def flush_buffer(self):
         """Copies the buffer contents to the screen. This method should be called at the end of
         the game's output phase.
-        """ 
+        """
         pyray.end_drawing()
 
     def get_cell_size(self):
@@ -86,7 +84,6 @@ class VideoService:
 
     def is_window_open(self):
         """Whether or not the window was closed by the user.
-
         Returns:
             bool: True if the window is closing; false if otherwise.
         """
@@ -94,7 +91,6 @@ class VideoService:
 
     def open_window(self):
         """Opens a new window with the provided title.
-
         Args:
             title (string): The title of the window.
         """
