@@ -1,11 +1,4 @@
-import random
-from shared.color import Color
-from shared.point import Point
-from shared.velocity import Velocity
-from casting.rock import Rock
-from casting.gem import Gem
-
-
+from game.shared.point import Point
 class Director:
     """A person who directs the game. 
     
@@ -46,8 +39,12 @@ class Director:
             cast (Cast): The cast of actors.
         """
         robot = cast.get_first_actor("robots")
-        velocity = self._keyboard_service.get_direction()
-        robot.set_velocity(velocity)        
+        velocity = self._keyboard_service.get_direction(1, 0)
+        robot.set_velocity(velocity)       
+        artifacts = cast.get_actors("artifacts")
+        for artifact in artifacts:
+            velocity = Point(0, 2)
+            artifact.set_velocity(velocity)  
 
     def _do_updates(self, cast):
         """Updates the robot's position and resolves any collisions with artifacts.
@@ -55,73 +52,24 @@ class Director:
         Args:
             cast (Cast): The cast of actors.
         """
-        score = cast.get_first_actor("score")
-        player= cast.get_first_actor("player")
-        rocks = cast.get_actors("rocks")
-        gems= cast.get_actors("gems")
+        banner = cast.get_first_actor("banners")
+        robot = cast.get_first_actor("robots")
+        artifacts = cast.get_actors("artifacts")
 
-        
+        banner.set_text("")
         max_x = self._video_service.get_width()
         max_y = self._video_service.get_height()
-        player.move_next(max_x, max_y)
+        robot.move_next(max_x, max_y)
+        for artifact in artifacts:
+            artifact.move_next(max_x, max_y)
+
         
-        for gem in gems:
-            if player.get_position().equals(gems.get_position()):
-                player.score_gem()
-                score.set_text("score: "+ str(player.get_score()))
-                cast.remove_actor("gems",gem)
-            gem.move_next(max_x, max_y)
-
-        for rock in rocks:
-            if player.get_position().equals(rock.get_position()):
-                player.score_rock()
-                score.set_text("score: "+str(player.get_score()))
-                cast.remove_actor("rocks",rock)
-            rock.move_next(max_x,max_y)
-
-        if len(gems)== 0:
-            score.set_text("score: "+ str(player.get_score()))
-    
-    def create_rocks(self,cast):
-        x=random.randint(1, 60 - 1)
-        y=random.randint(1, 40 -1 )
-        positionn= Point(x,y)
-        position= position.scale(15)
-        speed = Velocity(0,1)
-
-        r= random.randint(100,255)
-        g=random.randint(100,255)
-        b=random.randint(100,255)
-        color= Color(r,g,b)
-
-        rock=Rock()
-        rock.set_text("O")
-        rock.set_font_size(15)
-        rock.set_color(color)
-        rock.set_position(position)
-        rock.set_velocity(speed)
-        cast.add_actor("rocks",rock)
-    def create_gems(self, cast):
-        x = random.randint(1, 60 - 1)
-        y = random.randint(1, 40 - 1)
-        position = Point(x, y)
-        position = position.scale(15)
-        speed = Velocity(0, 1)
-
-        r = random.randint(100, 255)
-        g = random.randint(100, 255)
-        b = random.randint(100, 255)
-        color = Color(r, g, b)
         
-        gem = Gem()
-        gem.set_text("*")
-        gem.set_font_size(15)
-        gem.set_color(color)
-        gem.set_position(position)
-        gem.set_velocity(speed)
-        cast.add_actor("gems", gem)
-
-
+        for artifact in artifacts:
+            if robot.get_position().equals(artifact.get_position()):
+                message = artifact.get_message()
+                banner.set_text(message)    
+        
     def _do_outputs(self, cast):
         """Draws the actors on the screen.
         
