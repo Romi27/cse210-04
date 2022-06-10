@@ -1,6 +1,5 @@
 import pyray
-from GREED.shared.velocity import Velocity
-
+from game.shared.point import Point
 
 
 class KeyboardService:
@@ -21,7 +20,7 @@ class KeyboardService:
         """
         self._cell_size = cell_size
 
-    def get_direction(self):
+    def get_direction(self,x,y):
         """Gets the selected direction based on the currently pressed keys.
 
         Returns:
@@ -30,19 +29,20 @@ class KeyboardService:
         dx = 0
         dy = 0
 
+
         if pyray.is_key_down(pyray.KEY_LEFT):
-            dx = -1
+            dx = x * -1
         
         if pyray.is_key_down(pyray.KEY_RIGHT):
-            dx = 1
+            dx = x
         
         if pyray.is_key_down(pyray.KEY_UP):
-            dy = -1
+            dy = y * -1
         
         if pyray.is_key_down(pyray.KEY_DOWN):
-            dy = 1
+            dy = y
 
-        direction = Velocity(dx, dy)
+        direction = Point(dx, dy)
         direction = direction.scale(self._cell_size)
         
         return direction
